@@ -21,7 +21,6 @@ public class UVCCameraManager : MonoBehaviour
         public Coroutine renderCoroutine;
     }
 
-    // === 변수 선언부 ===
     AndroidJavaObject plugin;
     AndroidJavaObject activity;
     AndroidJavaClass unityPlayer;
@@ -54,10 +53,6 @@ public class UVCCameraManager : MonoBehaviour
 
     private float timer = 0f;
     private int frameCount = 0;
-
-    // ===========================
-    // Unity 생명주기 함수들
-    // ===========================
 
     // 게임 오브젝트 시작 시 초기화 및 모니터링 시작
     void Start()
@@ -106,10 +101,6 @@ public class UVCCameraManager : MonoBehaviour
         isUSBMonitoring = false;
         StopAllCameras();
     }
-
-    // ===========================
-    // 앱 생명주기 관련 함수들
-    // ===========================
 
     // 앱 일시정지 상태 처리
     void OnApplicationPause(bool pauseStatus)
@@ -165,10 +156,6 @@ public class UVCCameraManager : MonoBehaviour
         }
     }
 
-    // ===========================
-    // UI 버튼 관련 함수들
-    // ===========================
-
     // 버튼 이벤트 리스너 설정
     void SetupButtons()
     {
@@ -188,20 +175,15 @@ public class UVCCameraManager : MonoBehaviour
     // 좌우 카메라 텍스처 교체 (완전한 해결책)
     public void SwapCameraTextures()
     {
-        Debug.Log("[DEBUG] SwapCameraTextures 호출됨");
-
         if (cameraTargets.Length >= 2)
         {
             CameraRenderTarget leftTarget = cameraTargets[0];
             CameraRenderTarget rightTarget = cameraTargets[1];
 
-            Debug.Log($"[DEBUG] 교체 전 - Left: {leftTarget?.cameraName}, Right: {rightTarget?.cameraName}");
-
             if (leftTarget != null && rightTarget != null &&
                 leftTarget.targetRawImage != null && rightTarget.targetRawImage != null &&
                 leftTarget.isActive && rightTarget.isActive)
             {
-                // 1. 기존 렌더링 코루틴 정지
                 if (leftTarget.renderCoroutine != null)
                 {
                     StopCoroutine(leftTarget.renderCoroutine);
@@ -213,7 +195,6 @@ public class UVCCameraManager : MonoBehaviour
                     rightTarget.renderCoroutine = null;
                 }
 
-                // 2. 모든 속성 교체
                 string tempCameraName = leftTarget.cameraName;
                 leftTarget.cameraName = rightTarget.cameraName;
                 rightTarget.cameraName = tempCameraName;
@@ -222,19 +203,11 @@ public class UVCCameraManager : MonoBehaviour
                 leftTarget.cameraTexture = rightTarget.cameraTexture;
                 rightTarget.cameraTexture = tempTexture;
 
-                // 3. RawImage에 교체된 텍스처 적용
                 leftTarget.targetRawImage.texture = leftTarget.cameraTexture;
                 rightTarget.targetRawImage.texture = rightTarget.cameraTexture;
 
-                // 4. 새로운 렌더링 코루틴 시작
                 leftTarget.renderCoroutine = StartCoroutine(RenderCameraFrames(0));
                 rightTarget.renderCoroutine = StartCoroutine(RenderCameraFrames(1));
-
-                Debug.Log($"[DEBUG] 교체 후 - Left: {leftTarget.cameraName}, Right: {rightTarget.cameraName}");
-            }
-            else
-            {
-                Debug.LogWarning("[DEBUG] 텍스처 교체 실패 - 조건 불만족");
             }
         }
     }
@@ -242,7 +215,6 @@ public class UVCCameraManager : MonoBehaviour
     // 확인 버튼 클릭 이벤트 처리
     public void OnConfirmButtonClicked()
     {
-        // 버튼들 비활성화 (사라지게 함)
         if (SwapTexturesButton != null)
         {
             SwapTexturesButton.gameObject.SetActive(false);
@@ -259,27 +231,19 @@ public class UVCCameraManager : MonoBehaviour
     {
         int activeCameraCount = GetActiveCameraCount();
 
-        Debug.Log($"[DEBUG] CheckAndActivateButtons - 활성 카메라 수: {activeCameraCount}");
-
         if (activeCameraCount >= 2)
         {
             if (SwapTexturesButton != null && !SwapTexturesButton.gameObject.activeInHierarchy)
             {
                 SwapTexturesButton.gameObject.SetActive(true);
-                Debug.Log("[DEBUG] SwapTexturesButton 다시 활성화됨");
             }
 
             if (ConfirmButton != null && !ConfirmButton.gameObject.activeInHierarchy)
             {
                 ConfirmButton.gameObject.SetActive(true);
-                Debug.Log("[DEBUG] ConfirmButton 다시 활성화됨");
             }
         }
     }
-
-    // ===========================
-    // 초기화 관련 함수들
-    // ===========================
 
     // 플러그인 초기화 및 카메라 검색 재시도
     IEnumerator InitializeWithRetry()
@@ -382,10 +346,6 @@ public class UVCCameraManager : MonoBehaviour
         isFirstSetup = true;
     }
 
-    // ===========================
-    // USB 모니터링 관련 함수들
-    // ===========================
-
     // USB 연결 상태 변화 실시간 모니터링
     IEnumerator MonitorUSBChanges()
     {
@@ -477,10 +437,6 @@ public class UVCCameraManager : MonoBehaviour
         }
     }
 
-    // ===========================
-    // 카메라 자동 감지 관련 함수들
-    // ===========================
-
     // 자동 감지 시작점
     void AutoDetectAndManageCameras()
     {
@@ -563,10 +519,6 @@ public class UVCCameraManager : MonoBehaviour
     {
         detectionInterval = Mathf.Max(0.5f, interval);
     }
-
-    // ===========================
-    // 카메라 관리 관련 함수들
-    // ===========================
 
     // 연결 해제된 카메라들 정리
     IEnumerator CleanupDisconnectedCameras(List<string> currentCameraList)
@@ -658,7 +610,6 @@ public class UVCCameraManager : MonoBehaviour
             }
         }
 
-        // 2대 카메라가 모두 활성화되면 버튼들 다시 활성화
         CheckAndActivateButtons();
     }
 
@@ -688,10 +639,6 @@ public class UVCCameraManager : MonoBehaviour
         }
         return false;
     }
-
-    // ===========================
-    // 카메라 설정 및 실행 관련 함수들
-    // ===========================
 
     // 개별 카메라 설정 및 실행
     IEnumerator SetupCamera(int cameraIndex, System.Action<bool> onComplete = null)
@@ -879,10 +826,6 @@ public class UVCCameraManager : MonoBehaviour
         if (onComplete != null) onComplete(true);
     }
 
-    // ===========================
-    // 카메라 렌더링 관련 함수들
-    // ===========================
-
     // 카메라 프레임 렌더링 루프
     IEnumerator RenderCameraFrames(int cameraIndex)
     {
@@ -981,10 +924,6 @@ public class UVCCameraManager : MonoBehaviour
 
         target.isActive = false;
     }
-
-    // ===========================
-    // 리소스 정리 관련 함수들
-    // ===========================
 
     // Close 요청 큐 순차 처리
     IEnumerator ProcessCloseQueue()
